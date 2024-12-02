@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -66,6 +66,28 @@ public class OrderRestAdapterTest {
 
         Mockito.verify(orderInputPort,times(1)).findAll();
         Mockito.verify(orderRestMapper,times(1)).toOrdersResponse(anyList());
+    }
+
+    @Test
+    @DisplayName("When_ Order Identifier Is Valid Expect Order Information Successfully")
+    void When_OrderIdentifierIsValid_Expect_OrderInformationSuccessfully() throws Exception {
+
+        Order order = TestUtilOrder.buildOrderMock();
+        OrderResponse orderResponse= TestUtilOrder.buildOrderResponseMock();
+
+        when(orderInputPort.findById(anyLong()))
+                .thenReturn(order);
+
+        when(orderRestMapper.toOrderResponse(any(Order.class)))
+                .thenReturn(orderResponse);
+
+        mockMvc.perform(get("/orders/{id}",1L).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andDo(print());
+
+        Mockito.verify(orderInputPort,times(1)).findById(anyLong());
+        Mockito.verify(orderRestMapper,times(1)).toOrderResponse(any(Order.class));
     }
 
 

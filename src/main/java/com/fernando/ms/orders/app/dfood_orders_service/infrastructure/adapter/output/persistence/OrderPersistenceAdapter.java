@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -18,5 +19,10 @@ public class OrderPersistenceAdapter implements OrderPersistencePort {
     @Override
     public List<Order> findAll() {
         return orderPersistenceMapper.toOrders(orderJpaRepository.findAll());
+    }
+
+    @Override
+    public Optional<Order> findById(Long id) {
+        return orderJpaRepository.findById(id).map(orderPersistenceMapper::toOrder);
     }
 }

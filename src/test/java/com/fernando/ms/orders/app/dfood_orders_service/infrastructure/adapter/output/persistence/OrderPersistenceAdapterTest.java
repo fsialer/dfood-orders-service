@@ -15,9 +15,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -58,6 +59,19 @@ public class OrderPersistenceAdapterTest {
         assertEquals(0,orders.size());
         Mockito.verify(orderJpaRepository,times(1)).findAll();
         Mockito.verify(orderPersistenceMapper,times(1)).toOrders(anyList());
+    }
+
+    @Test
+    @DisplayName("When Order Information By Identifier Is Correct Expect Order Information Correct")
+    void When_OrderInformationByIdentifierIsCorrect_Expect_OrderInformationCorrect(){
+        OrderEntity orderEntity= TestUtilOrder.buildOrderEntityMock();
+        Order order=TestUtilOrder.buildOrderMock();
+        when(orderJpaRepository.findById(anyLong())).thenReturn(Optional.of(orderEntity));
+        when(orderPersistenceMapper.toOrder(any(OrderEntity.class))).thenReturn(order);
+        Optional<Order> orderResponse=orderPersistenceAdapter.findById(1L);
+        assertNotNull(orderResponse);
+        Mockito.verify(orderJpaRepository,times(1)).findById(anyLong());
+        Mockito.verify(orderPersistenceMapper,times(1)).toOrder(any(OrderEntity.class));
     }
 
 

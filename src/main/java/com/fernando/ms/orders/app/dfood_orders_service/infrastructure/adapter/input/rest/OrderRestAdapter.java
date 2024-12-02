@@ -6,6 +6,7 @@ import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.in
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,6 +22,10 @@ public class OrderRestAdapter {
     @GetMapping
     public ResponseEntity<List<OrderResponse>> findAll(){
         return ResponseEntity.ok().body(orderRestMapper.toOrdersResponse(orderInputPort.findAll()));
+    }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderResponse> findById(@PathVariable Long id){
+        return ResponseEntity.ok().body(orderRestMapper.toOrderResponse(orderInputPort.findById(id)));
     }
 }

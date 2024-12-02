@@ -10,4 +10,5 @@ import java.util.List;
 public interface OrderRestMapper {
 
     List<OrderResponse> toOrdersResponse(List<Order> orders);
+    OrderResponse toOrderResponse(Order order);
 }

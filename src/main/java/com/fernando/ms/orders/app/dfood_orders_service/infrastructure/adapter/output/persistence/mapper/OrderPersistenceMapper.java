@@ -9,4 +9,5 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface OrderPersistenceMapper {
     List<Order> toOrders(List<OrderEntity> orders);
+    Order toOrder(OrderEntity order);
 }
