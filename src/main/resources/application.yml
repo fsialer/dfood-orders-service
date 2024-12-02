@@ -1,0 +1,19 @@
+server:
+  port: 8083
+spring:
+  application:
+    name:dfood-orders-service
+  jackson:
+    default-property-inclusion: NON_NULL
+  datasource:
+    url: jdbc:postgresql://localhost:5432/orders_db
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect

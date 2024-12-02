@@ -1,4 +1,4 @@
-package com.fernando.ms.app.dfood_orders_service;
+package com.fernando.ms.orders.app.dfood_orders_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
