@@ -33,12 +33,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -61,8 +59,8 @@ public class ProductRestClientAdapterTest {
     private ProductsRestClientAdapter productsRestClientAdapter;
 
     @Test
-    @DisplayName("When Orders Are Availability Expect Customers Information Successfully")
-    void When_OrdersAreAvailability_Expect_OrdersInformationSuccessfully() throws Exception {
+    @DisplayName("When Products Identifier Are Availability Expect A List Products Successfully")
+    void When_ProductsIdentifierAreAvailability_Expect_AListProductsSuccessfully() throws Exception {
 
         Product product = TestUtilProduct.buildProductMock();
         ProductClientResponse productClientResponse=TestUtilProduct.buildProductResponseMock();
@@ -81,5 +79,13 @@ public class ProductRestClientAdapterTest {
 
         Mockito.verify(productFeignClient,times(1)).findByIds(anyList());
         Mockito.verify(productRestClientMapper,times(1)).toProducts(anyList());
+    }
+
+    @Test
+    @DisplayName("When Products Identifier Are Availability Expect None Exception")
+    void When_ProductsIdentifierAreAvailability_Expect_NoneException() throws Exception {
+        doNothing().when(productFeignClient).verifyExistsByIds(anyList());
+        assertDoesNotThrow(() -> productsRestClientAdapter.verifyExistProductsByIds(List.of(1L)));
+        Mockito.verify(productFeignClient,times(1)).verifyExistsByIds(anyList());
     }
 }
