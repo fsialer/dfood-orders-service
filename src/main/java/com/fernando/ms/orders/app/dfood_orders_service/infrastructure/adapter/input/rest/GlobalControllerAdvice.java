@@ -1,9 +1,12 @@
 package com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest;
 
 import com.fernando.ms.orders.app.dfood_orders_service.domain.exception.OrderNotFoundException;
+import com.fernando.ms.orders.app.dfood_orders_service.domain.exception.ProductNotFoundException;
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.models.response.ErrorResponse;
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -49,6 +52,33 @@ public class GlobalControllerAdvice {
                 .timestamp(LocalDate.now().toString())
                 .build();
     }
+
+//    @ResponseStatus(HttpStatus.NOT_FOUND)
+//    @ExceptionHandler(ProductNotFoundException.class)
+//    public ErrorResponse handleProductNotFoundException() {
+//        return ErrorResponse.builder()
+//                .code(PRODUCT_NOT_FOUND.getCode())
+//                .type(FUNCTIONAL)
+//                .message(PRODUCT_NOT_FOUND.getMessage())
+//                .timestamp(LocalDate.now().toString())
+//                .build();
+//    }
+
+    @ExceptionHandler(FeignException.class)
+    public  ResponseEntity<ErrorResponse> handleFeignException(FeignException e) {
+        ErrorResponse errorResponse =null;
+
+        errorResponse= ErrorResponse.builder()
+                .code(WEB_CLIENT_ERROR.getCode())
+                .type(FUNCTIONAL)
+                .message(WEB_CLIENT_ERROR.getMessage())
+                .details(Collections.singletonList(e.getMessage()))
+                .timestamp(LocalDate.now().toString())
+                .build();
+        return ResponseEntity.status(e.status())
+                .body(errorResponse);
+    }
+
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)

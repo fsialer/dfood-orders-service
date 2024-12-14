@@ -10,4 +10,5 @@ import java.util.List;
 public interface OrderPersistenceMapper {
     List<Order> toOrders(List<OrderEntity> orders);
     Order toOrder(OrderEntity order);
+    OrderEntity toOrderEntity(Order order);
 }

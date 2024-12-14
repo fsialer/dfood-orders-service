@@ -1,4 +1,4 @@
-package com.fernando.ms.orders.app.dfood_orders_service.domain.models;
+package com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.output.restclient.models.response;
 
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Product {
+public class ProductClientResponse {
     private Long id;
     private String name;
     private String description;

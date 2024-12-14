@@ -4,6 +4,7 @@ import com.fernando.ms.orders.app.dfood_orders_service.domain.models.enums.Statu
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,9 +13,11 @@ import java.time.LocalDate;
 @Builder
 public class Order {
     private Long id;
-    private Long user_id;
+    private Long userId;
     private LocalDate dateOrder;
     private Double totalAmount;
     private StatusOrderEnum statusOrder;
+    //private List<OrderProduct> orderProducts;
+    private List<Product> products;
 
 }

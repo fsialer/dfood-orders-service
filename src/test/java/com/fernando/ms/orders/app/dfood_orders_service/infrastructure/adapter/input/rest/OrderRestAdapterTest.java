@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.input.OrderInputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.domain.models.Order;
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.mapper.OrderRestMapper;
+import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.models.request.CreateOrderRequest;
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.models.response.OrderResponse;
 import com.fernando.ms.orders.app.dfood_orders_service.utils.TestUtilOrder;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +24,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -87,6 +89,34 @@ public class OrderRestAdapterTest {
                 .andDo(print());
 
         Mockito.verify(orderInputPort,times(1)).findById(anyLong());
+        Mockito.verify(orderRestMapper,times(1)).toOrderResponse(any(Order.class));
+    }
+
+    @Test
+    @DisplayName("When Order Identifier Is Valid Expect Order Information Successfully")
+    void When_OrderInformationIsCorrect_Expect_OrderInformationToBeSavedSuccessfully() throws Exception {
+
+        CreateOrderRequest createOrderRequest=TestUtilOrder.buildCreateOrderRequestMock();
+
+        Order order = TestUtilOrder.buildOrderMock();
+        OrderResponse orderResponse= TestUtilOrder.buildOrderResponseMock();
+
+        when(orderInputPort.save(any(Order.class)))
+                .thenReturn(order);
+
+        when(orderRestMapper.toOrder(any(CreateOrderRequest.class)))
+                .thenReturn(order);
+        when(orderRestMapper.toOrderResponse(any(Order.class))).thenReturn(orderResponse);
+
+        mockMvc.perform(post("/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createOrderRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andDo(print());
+
+        Mockito.verify(orderInputPort,times(1)).save(any(Order.class));
+        Mockito.verify(orderRestMapper,times(1)).toOrder(any(CreateOrderRequest.class));
         Mockito.verify(orderRestMapper,times(1)).toOrderResponse(any(Order.class));
     }
 

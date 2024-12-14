@@ -1,8 +1,11 @@
 server:
-  port: 8083
+  port: 8084
 spring:
+  cloud:
+    compatibility-verifier:
+      enabled: false
   application:
-    name:dfood-orders-service
+    name: dfood-orders-service
   jackson:
     default-property-inclusion: NON_NULL
   datasource:
@@ -17,3 +20,5 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+products-service:
+  url: ${PRODUCTS_URL:http://localhost:8080}

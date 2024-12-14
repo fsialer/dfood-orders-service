@@ -2,14 +2,14 @@ package com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.i
 
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.input.OrderInputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.mapper.OrderRestMapper;
+import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.models.request.CreateOrderRequest;
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.models.response.OrderResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -27,5 +27,11 @@ public class OrderRestAdapter {
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponse> findById(@PathVariable Long id){
         return ResponseEntity.ok().body(orderRestMapper.toOrderResponse(orderInputPort.findById(id)));
+    }
+
+    @PostMapping
+    public ResponseEntity<OrderResponse> save(@Valid @RequestBody CreateOrderRequest rq){
+        OrderResponse orderResponse=orderRestMapper.toOrderResponse(orderInputPort.save(orderRestMapper.toOrder(rq)));
+        return ResponseEntity.created(URI.create("/order/".concat(orderResponse.getId().toString()))).body(orderResponse);
     }
 }

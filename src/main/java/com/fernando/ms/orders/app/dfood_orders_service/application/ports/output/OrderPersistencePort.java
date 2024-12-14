@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface OrderPersistencePort {
     List<Order> findAll();
     Optional<Order> findById(Long id);
+    Order save(Order order);
 }

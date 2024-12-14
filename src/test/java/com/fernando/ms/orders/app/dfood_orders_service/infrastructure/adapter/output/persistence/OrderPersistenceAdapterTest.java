@@ -74,5 +74,20 @@ public class OrderPersistenceAdapterTest {
         Mockito.verify(orderPersistenceMapper,times(1)).toOrder(any(OrderEntity.class));
     }
 
+    @Test
+    @DisplayName("When Order Information Is Correct Expect Order Information To Be Saved")
+    void When_OrderInformationIsCorrect_Expect_OrderInformationToBeSaved(){
+        OrderEntity orderEntity= TestUtilOrder.buildOrderEntityMock();
+        Order order=TestUtilOrder.buildOrderMock();
+        when(orderJpaRepository.save(any(OrderEntity.class))).thenReturn(orderEntity);
+        when(orderPersistenceMapper.toOrder(any(OrderEntity.class))).thenReturn(order);
+        when(orderPersistenceMapper.toOrderEntity(any(Order.class))).thenReturn(orderEntity);
+        Order orderResponse=orderPersistenceAdapter.save(order);
+        assertNotNull(orderResponse);
+        Mockito.verify(orderJpaRepository,times(1)).save(any(OrderEntity.class));
+        Mockito.verify(orderPersistenceMapper,times(1)).toOrder(any(OrderEntity.class));
+        Mockito.verify(orderPersistenceMapper,times(1)).toOrderEntity(any(Order.class));
+    }
+
 
 }
