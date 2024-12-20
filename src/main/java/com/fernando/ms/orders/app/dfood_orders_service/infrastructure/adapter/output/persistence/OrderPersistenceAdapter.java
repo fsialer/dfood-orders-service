@@ -35,14 +35,6 @@ public class OrderPersistenceAdapter implements OrderPersistencePort {
     @Override
     public Order save(Order order) {
         OrderEntity orderEntity=orderPersistenceMapper.toOrderEntity(order);
-//        if(!order.getOrderProducts().isEmpty()){
-//            orderEntity.setOrderProducts(order
-//                    .getOrderProducts()
-//                    .stream()
-//                    .map(orderProductPersistenceMapper::toOrderProductEntity)
-//                    .peek(orderProduct -> orderProduct.setOrder(orderEntity))
-//                    .collect(Collectors.toList()));
-//        }
         orderEntity.setStatusOrders(List
                 .of(StatusOrderEntity
                         .builder()

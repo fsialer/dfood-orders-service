@@ -1,7 +1,7 @@
 package com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest;
 
 import com.fernando.ms.orders.app.dfood_orders_service.domain.exception.OrderNotFoundException;
-import com.fernando.ms.orders.app.dfood_orders_service.domain.exception.ProductNotFoundException;
+import com.fernando.ms.orders.app.dfood_orders_service.domain.exception.OrderStrategyException;
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.models.response.ErrorResponse;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
@@ -64,20 +64,52 @@ public class GlobalControllerAdvice {
 //                .build();
 //    }
 
+
+    @ExceptionHandler(OrderStrategyException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleOrderStrategyException(OrderStrategyException e){
+        return ErrorResponse.builder()
+                .code(ORDER_STRATEGY_ERROR.getCode())
+                .type(FUNCTIONAL)
+                .message(ORDER_STRATEGY_ERROR.getMessage())
+                .details(Collections.singletonList(e.getMessage()))
+                .timestamp(LocalDate.now().toString())
+                .build();
+    }
+
+
+
     @ExceptionHandler(FeignException.class)
     public  ResponseEntity<ErrorResponse> handleFeignException(FeignException e) {
-        ErrorResponse errorResponse =null;
-
-        errorResponse= ErrorResponse.builder()
+        HttpStatus status=HttpStatus.BAD_GATEWAY;
+        if(e.status()!=-1){
+                status= HttpStatus.valueOf(e.status());
+        }
+        ErrorResponse errorResponse = ErrorResponse.builder()
                 .code(WEB_CLIENT_ERROR.getCode())
                 .type(FUNCTIONAL)
                 .message(WEB_CLIENT_ERROR.getMessage())
                 .details(Collections.singletonList(e.getMessage()))
                 .timestamp(LocalDate.now().toString())
                 .build();
-        return ResponseEntity.status(e.status())
+        return ResponseEntity.status(status.value())
                 .body(errorResponse);
     }
+
+//    @ExceptionHandler(ExternalApiException.class)
+//    public  ResponseEntity<ErrorResponse> handleFeignException(ExternalApiException e) {
+//
+//        ErrorResponse errorResponse = ErrorResponse.builder()
+//                .code(WEB_CLIENT_ERROR.getCode())
+//                .type(FUNCTIONAL)
+//                .message(WEB_CLIENT_ERROR.getMessage())
+//                .details(Collections.singletonList(e.getMessage()))
+//                .timestamp(LocalDate.now().toString())
+//                .build();
+//
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                .body(errorResponse);
+//    }
 
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

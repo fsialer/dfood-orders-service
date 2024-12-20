@@ -35,6 +35,25 @@ public class TestUtilOrder {
                 .build();
     }
 
+    public static Order buildOrderCanceledMock(){
+        return Order
+                .builder()
+                .id(1L)
+                .userId(1L)
+                .dateOrder(LocalDate.now())
+                .totalAmount(50.00)
+                .statusOrder(StatusOrderEnum.CANCELED)
+                .products(List.of(Product
+                        .builder()
+                        .id(1L)
+                        //.productId(1L)
+                        .quantity(2)
+                        .price(20.0)
+                        //.amount(40.0)
+                        .build()))
+                .build();
+    }
+
     public static OrderEntity buildOrderEntityMock(){
         return OrderEntity
                 .builder()

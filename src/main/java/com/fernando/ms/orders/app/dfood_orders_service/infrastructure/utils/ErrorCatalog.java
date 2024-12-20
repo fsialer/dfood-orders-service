@@ -10,6 +10,7 @@ public enum ErrorCatalog {
     ORDER_BAD_PARAMETERS("ORDER_MS_002", "Invalid parameters for creation order."),
     //PRODUCT_NOT_FOUND("ORDER_MS_003","Product Not Found"),
     WEB_CLIENT_ERROR("ORDER_MS_003", "Error with product-service."),
+    ORDER_STRATEGY_ERROR("ORDER_MS_004", "Status type selected is invalid."),
     INTERNAL_SERVER_ERROR("ORDER_MS_000", "Internal server error.");
 
     private final String code;

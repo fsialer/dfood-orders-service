@@ -23,8 +23,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -118,6 +117,24 @@ public class OrderRestAdapterTest {
         Mockito.verify(orderInputPort,times(1)).save(any(Order.class));
         Mockito.verify(orderRestMapper,times(1)).toOrder(any(CreateOrderRequest.class));
         Mockito.verify(orderRestMapper,times(1)).toOrderResponse(any(Order.class));
+    }
+
+    @Test
+    @DisplayName("When Order Identifier Is Valid Expect Order Information To Be Updated Successfully")
+    void When_ChangeStatusOrderInformationIsCorrect_Expect_OrderInformationToBeUpdatedSuccessfully() throws Exception {
+        Order order = TestUtilOrder.buildOrderMock();
+        OrderResponse orderResponse= TestUtilOrder.buildOrderResponseMock();
+        when(orderInputPort.changeStatus(anyLong(),anyString()))
+                .thenReturn(order);
+        when(orderRestMapper.toOrderResponse(any(Order.class))).thenReturn(orderResponse);
+
+        mockMvc.perform(put("/orders/{id}/change-status/{status}",1L,"CANCELED")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andDo(print());
+
+        Mockito.verify(orderInputPort,times(1)).changeStatus(anyLong(),anyString());
     }
 
 

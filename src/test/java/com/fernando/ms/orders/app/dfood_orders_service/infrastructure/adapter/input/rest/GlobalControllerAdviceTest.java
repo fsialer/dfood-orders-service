@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.input.OrderInputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.output.ExternalProductsOutputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.domain.exception.OrderNotFoundException;
+import com.fernando.ms.orders.app.dfood_orders_service.domain.exception.OrderStrategyException;
 import com.fernando.ms.orders.app.dfood_orders_service.domain.models.Order;
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.mapper.OrderRestMapper;
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.models.request.CreateOrderRequest;
@@ -27,13 +28,12 @@ import static com.fernando.ms.orders.app.dfood_orders_service.infrastructure.ada
 import static com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.models.enums.ErrorType.SYSTEM;
 import static com.fernando.ms.orders.app.dfood_orders_service.infrastructure.utils.ErrorCatalog.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.web.servlet.function.RequestPredicates.contentType;
 
 @WebMvcTest(controllers = {OrderRestAdapter.class})
 public class GlobalControllerAdviceTest {
@@ -131,6 +131,60 @@ public class GlobalControllerAdviceTest {
                             () -> assertEquals(WEB_CLIENT_ERROR.getMessage(), errorResponse.getMessage()),
                             () -> assertNotNull(errorResponse.getDetails()),
                             () -> assertNotNull(errorResponse.getTimestamp())
+                    );
+                });
+    }
+
+
+    @Test
+    @DisplayName("Expect OrderStrategyException When Products Of Order Are Invalid")
+    void Expect_OrderStrategyException_When_ProductsOfOrderAreInvalid() throws Exception {
+        CreateOrderRequest createOrderRequest= TestUtilOrder.buildCreateOrderRequestMock();
+        Order order = TestUtilOrder.buildOrderMock();
+
+        when(orderRestMapper.toOrder(any(CreateOrderRequest.class)))
+                .thenReturn(order);
+        when(orderInputPort.save(any(Order.class)))
+                .thenThrow(new OrderStrategyException("No order strategy found for status type: " + order.getStatusOrder().name()));
+        mockMvc.perform(post("/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createOrderRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    ErrorResponse errorResponse = objectMapper.readValue(
+                            result.getResponse().getContentAsString(),
+                            ErrorResponse.class
+                    );
+                    assertAll(
+                            () -> assertEquals(ORDER_STRATEGY_ERROR.getCode(), errorResponse.getCode()),
+                            () -> assertEquals(FUNCTIONAL, errorResponse.getType()),
+                            () -> assertEquals(ORDER_STRATEGY_ERROR.getMessage(), errorResponse.getMessage())
+                    );
+                });
+    }
+
+    @Test
+    @DisplayName("Expect FeignException When Change Status Of Product Is Invalid")
+    void Expect_OrderStrategyException_When_ChangeStatusOfProductIsInvalid() throws Exception {
+        CreateOrderRequest createOrderRequest= TestUtilOrder.buildCreateOrderRequestMock();
+        Order order = TestUtilOrder.buildOrderMock();
+
+//        when(orderRestMapper.toOrder(any(CreateOrderRequest.class)))
+//                .thenReturn(order);
+        when(orderInputPort.changeStatus(anyLong(),anyString()))
+                .thenThrow(new OrderStrategyException("No order strategy found for status type: " + order.getStatusOrder().name()));
+        mockMvc.perform(put("/orders/{id}/change-status/{status}",1L,"POD")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    ErrorResponse errorResponse = objectMapper.readValue(
+                            result.getResponse().getContentAsString(),
+                            ErrorResponse.class
+                    );
+                    assertAll(
+                            () -> assertEquals(ORDER_STRATEGY_ERROR.getCode(), errorResponse.getCode()),
+                            () -> assertEquals(FUNCTIONAL, errorResponse.getType()),
+                            () -> assertEquals(ORDER_STRATEGY_ERROR.getMessage(), errorResponse.getMessage())
                     );
                 });
     }

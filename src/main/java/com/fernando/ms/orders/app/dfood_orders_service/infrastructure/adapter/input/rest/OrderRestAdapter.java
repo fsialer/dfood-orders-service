@@ -34,4 +34,10 @@ public class OrderRestAdapter {
         OrderResponse orderResponse=orderRestMapper.toOrderResponse(orderInputPort.save(orderRestMapper.toOrder(rq)));
         return ResponseEntity.created(URI.create("/order/".concat(orderResponse.getId().toString()))).body(orderResponse);
     }
+
+    @PutMapping("/{id}/change-status/{status}")
+    public ResponseEntity<OrderResponse> changeStatus(@PathVariable(name = "id") Long id,@PathVariable(name = "status") String status){
+        OrderResponse orderResponse=orderRestMapper.toOrderResponse(orderInputPort.changeStatus(id,status));
+        return ResponseEntity.ok().body(orderResponse);
+    }
 }

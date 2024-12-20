@@ -19,5 +19,6 @@ public class Order {
     private StatusOrderEnum statusOrder;
     //private List<OrderProduct> orderProducts;
     private List<Product> products;
+    //private List<StatusOrder> statusOrders;
 
 }
