@@ -27,16 +27,30 @@ public class OrderEntity {
     private StatusOrderEnum statusOrder;
     private LocalDate createAt;
     private LocalDate updateAt;
-//    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<OrderProductEntity> orderProducts;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<StatusOrderEntity> statusOrders;
+    private List<StatusOrderEntity> statusOrders=new ArrayList<>();;
 
-//    public OrderEntity(){
-//        this.orderProducts=new ArrayList<>();
-//    }
-//
-//    public void addOrderProduct(OrderProductEntity orderProductEntity){
-//        this.orderProducts.add(orderProductEntity);
-//    }
+    @JoinColumn(name = "order_id")
+    //@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderProduct> orderProductList=new ArrayList<>();
+
+    public void addStatusOrder(){
+        if (this.statusOrders == null) {
+            this.statusOrders = new ArrayList<>();
+        }
+        this.statusOrders.add(StatusOrderEntity
+                .builder()
+                        .order(this)
+                        .status(this.getStatusOrder().name())
+                        .createAt(LocalDate.now())
+                .build());
+    }
+
+    public void addOrderProduct(OrderProduct orderProduct){
+        if (this.orderProductList == null) {
+            this.orderProductList = new ArrayList<>();
+        }
+        this.orderProductList.add(orderProduct);
+    }
 }

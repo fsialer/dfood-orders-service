@@ -34,6 +34,7 @@ dependencies {
 	implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.6.2'
 	implementation group: 'org.projectlombok', name: 'lombok-mapstruct-binding', version: '0.2.0'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	implementation 'com.azure:azure-messaging-servicebus:7.15.0'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'

@@ -17,8 +17,7 @@ public class Order {
     private LocalDate dateOrder;
     private Double totalAmount;
     private StatusOrderEnum statusOrder;
-    //private List<OrderProduct> orderProducts;
     private List<Product> products;
-    //private List<StatusOrder> statusOrders;
+    private List<StatusOrder> statusOrders;
 
 }

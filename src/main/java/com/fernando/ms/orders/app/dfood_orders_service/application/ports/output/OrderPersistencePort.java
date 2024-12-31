@@ -9,4 +9,5 @@ public interface OrderPersistencePort {
     List<Order> findAll();
     Optional<Order> findById(Long id);
     Order save(Order order);
+    Order changeStatus(Order order);
 }

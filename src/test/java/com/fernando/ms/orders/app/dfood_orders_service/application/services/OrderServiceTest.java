@@ -1,17 +1,15 @@
 package com.fernando.ms.orders.app.dfood_orders_service.application.services;
 
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.output.ExternalProductsOutputPort;
+import com.fernando.ms.orders.app.dfood_orders_service.application.ports.output.OrderBusOutputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.output.OrderPersistencePort;
-import com.fernando.ms.orders.app.dfood_orders_service.application.services.strategy.externalproduct.ExternalProductStrategy;
 import com.fernando.ms.orders.app.dfood_orders_service.application.services.strategy.order.IOrderStrategy;
-import com.fernando.ms.orders.app.dfood_orders_service.application.services.strategy.order.RegisterOrder;
 import com.fernando.ms.orders.app.dfood_orders_service.domain.exception.OrderNotFoundException;
 import com.fernando.ms.orders.app.dfood_orders_service.domain.exception.OrderStrategyException;
 import com.fernando.ms.orders.app.dfood_orders_service.domain.models.Order;
 import com.fernando.ms.orders.app.dfood_orders_service.domain.models.enums.StatusOrderEnum;
 import com.fernando.ms.orders.app.dfood_orders_service.utils.TestUtilOrder;
-import com.fernando.ms.orders.app.dfood_orders_service.utils.TestUtilProduct;
-import feign.FeignException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,9 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
-import static com.fasterxml.jackson.databind.type.LogicalType.Collection;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -35,27 +31,25 @@ public class OrderServiceTest {
     @Mock
     private OrderPersistencePort orderPersistencePort;
 
-//    @Mock
-//    private ExternalProductsOutputPort externalProductsOutputPort;
     @InjectMocks
     private OrderService orderService;
-
-//    @Mock
-//    private IOrderStrategy externalProductStrategy;
 
     @Mock
     private IOrderStrategy orderStrategy;
 
-    @Mock
-    private  ExternalProductStrategy externalStrategy;
-
     private List<IOrderStrategy> orderStrategyList;
 
     @Mock
-    private IOrderStrategy externalProductStrategy;
+    private ExternalProductsOutputPort externalProductsOutputPort;
 
     @Mock
-    private IOrderStrategy anotherStrategy;
+    private OrderBusOutputPort orderBusOutputPort;
+
+    @BeforeEach
+    void setUp() {
+        orderStrategyList = List.of(orderStrategy);
+        orderService = new OrderService(orderPersistencePort, orderStrategyList,externalProductsOutputPort,orderBusOutputPort);
+    }
 
     @Test
     @DisplayName("When Order Information Exists Expect A List Information Orders")
@@ -98,138 +92,84 @@ public class OrderServiceTest {
     @Test
     @DisplayName("When Order Information Is Correct Expect Order Information To Be Saved")
     void When_OrderInformationIsCorrect_Expect_OrderInformationToBeSaved(){
-        orderStrategyList = List.of(anotherStrategy, externalProductStrategy);
-        Order order=TestUtilOrder.buildOrderMock();
-        List<Long> productsIds = List.of(1L,2L);
-        when(externalProductStrategy.isApplicable(StatusOrderEnum.REGISTERED.name())).thenReturn(true);
-        when(anotherStrategy.isApplicable(anyString())).thenReturn(false);
-        //when(orderStrategy.doOperation(any(Order.class))).thenReturn(order);
+        Order order = TestUtilOrder.buildOrderMock();
 
-        IOrderStrategy orderStrategy = orderStrategyList.stream()
-                .filter(strategy -> strategy.isApplicable(StatusOrderEnum.REGISTERED.name()))
-                .findFirst()
-                .orElseThrow(() -> new OrderStrategyException("No order strategy found for status type: " + order.getStatusOrder().name()));
+        when(orderStrategy.isApplicable(StatusOrderEnum.REGISTERED.name())).thenReturn(true);
+        when(orderStrategy.doOperation(any(Order.class))).thenReturn(order);
+        when(orderPersistencePort.save(any(Order.class))).thenReturn(order);
 
-        if (orderStrategy instanceof ExternalProductStrategy externalProductStrategy) {
-            externalProductStrategy.setIds(productsIds);
-        }
+        Order savedOrder = orderService.save(order);
 
-        orderStrategy.doOperation(order);
-
-        assertNotNull(orderStrategy);
-        Mockito.verify(orderStrategy,times(1)).doOperation(order);
-        Mockito.verify(orderStrategy,times(1)).isApplicable(anyString());
+        assertNotNull(savedOrder);
+        verify(orderStrategy, times(1)).isApplicable(StatusOrderEnum.REGISTERED.name());
+        verify(orderStrategy, times(1)).doOperation(order);
+        verify(orderPersistencePort, times(1)).save(order);
     }
 
     @Test
     @DisplayName("Expect OrderStrategyException When StatusOrderIsInvalid")
     void Expect_OrderStrategyException_When_StatusOrderIsInvalid(){
-        orderStrategyList = List.of(anotherStrategy, externalProductStrategy);
-        Order order=TestUtilOrder.buildOrderMock();
-        when(anotherStrategy.isApplicable(StatusOrderEnum.REGISTERED.name())).thenReturn(false);
+        Order order = TestUtilOrder.buildOrderMock();
 
-        OrderStrategyException exception=assertThrows(OrderStrategyException.class, () -> {
-            orderStrategyList.stream()
-                    .filter(strategy -> strategy.isApplicable(StatusOrderEnum.REGISTERED.name()))
-                    .findFirst()
-                    .orElseThrow(() -> new OrderStrategyException("No order strategy found for status type: " + order.getStatusOrder().name()));
+        when(orderStrategy.isApplicable(StatusOrderEnum.REGISTERED.name())).thenReturn(false);
+
+        OrderStrategyException exception = assertThrows(OrderStrategyException.class, () -> {
+            orderService.save(order);
         });
 
         assertEquals("No order strategy found for status type: REGISTERED", exception.getMessage());
-        Mockito.verify(anotherStrategy,times(0)).doOperation(order);
-        Mockito.verify(anotherStrategy,times(1)).isApplicable(anyString());
+        verify(orderStrategy, times(1)).isApplicable(StatusOrderEnum.REGISTERED.name());
+        verify(orderStrategy, times(0)).doOperation(order);
+        verify(orderPersistencePort, times(0)).save(order);
     }
 
     @Test
-    @DisplayName("When OrderCanceledIsCorrect Expect OrderChangeStatus")
-    void When_OrderCanceledIsCorrect_Expect_OrderChangeStatus(){
-        orderStrategyList = List.of(anotherStrategy, externalProductStrategy);
-        //Order orderCanceled=TestUtilOrder.buildOrderCanceledMock();
-        Order order=TestUtilOrder.buildOrderMock();
-       // when(orderPersistencePort.findById(anyLong())).thenReturn(Optional.of(order));
-        when(externalProductStrategy.isApplicable(StatusOrderEnum.CANCELED.name())).thenReturn(true);
-        when(anotherStrategy.isApplicable(anyString())).thenReturn(false);
-        //when(orderStrategy.doOperation(any(Order.class))).thenReturn(order);
+    @DisplayName("When Order Status Is Changed Correctly Expect Order To Be Updated")
+    void When_OrderStatusIsChangedCorrectly_Expect_OrderToBeUpdated() {
+        Order order = TestUtilOrder.buildOrderMock();
+        String newStatus = StatusOrderEnum.ATTENDED.name();
 
-        IOrderStrategy orderStrategy = orderStrategyList.stream()
-                .filter(strategy -> strategy.isApplicable(StatusOrderEnum.CANCELED.name()))
-                .findFirst()
-                .orElseThrow(() -> new OrderStrategyException("No order strategy found for status type: " + order.getStatusOrder().name()));
+        when(orderPersistencePort.findById(anyLong())).thenReturn(Optional.of(order));
+        when(orderStrategy.isApplicable(newStatus)).thenReturn(true);
+        when(orderStrategy.doOperation(order)).thenReturn(order);
+        when(orderPersistencePort.changeStatus(order)).thenReturn(order);
 
-        orderStrategy.doOperation(order);
+        Order updatedOrder = orderService.changeStatus(1L, newStatus);
 
-        assertNotNull(orderStrategy);
-        Mockito.verify(orderStrategy,times(1)).doOperation(order);
-        Mockito.verify(orderStrategy,times(1)).isApplicable(anyString());
-    }
-
-
-    @Test
-    @DisplayName("When OrderAttendedIsCorrect Expect OrderChangeStatus")
-    void When_OrderAttendedIsCorrect_Expect_OrderChangeStatus(){
-        orderStrategyList = List.of(anotherStrategy, externalProductStrategy);
-        //Order orderCanceled=TestUtilOrder.buildOrderCanceledMock();
-        Order order=TestUtilOrder.buildOrderMock();
-        // when(orderPersistencePort.findById(anyLong())).thenReturn(Optional.of(order));
-        when(externalProductStrategy.isApplicable(StatusOrderEnum.ATTENDED.name())).thenReturn(true);
-        when(anotherStrategy.isApplicable(anyString())).thenReturn(false);
-        //when(orderStrategy.doOperation(any(Order.class))).thenReturn(order);
-
-        IOrderStrategy orderStrategy = orderStrategyList.stream()
-                .filter(strategy -> strategy.isApplicable(StatusOrderEnum.ATTENDED.name()))
-                .findFirst()
-                .orElseThrow(() -> new OrderStrategyException("No order strategy found for status type: " + order.getStatusOrder().name()));
-
-        orderStrategy.doOperation(order);
-
-        assertNotNull(orderStrategy);
-        Mockito.verify(orderStrategy,times(1)).doOperation(order);
-        Mockito.verify(orderStrategy,times(1)).isApplicable(anyString());
+        assertNotNull(updatedOrder);
+        verify(orderPersistencePort, times(1)).findById(anyLong());
+        verify(orderStrategy, times(1)).isApplicable(newStatus);
+        verify(orderStrategy, times(1)).doOperation(order);
+        verify(orderPersistencePort, times(1)).changeStatus(order);
     }
 
     @Test
-    @DisplayName("When OrderSentIsCorrect Expect OrderChangeStatus")
-    void When_OrderSentIsCorrect_Expect_OrderChangeStatus(){
-        orderStrategyList = List.of(anotherStrategy, externalProductStrategy);
-        //Order orderCanceled=TestUtilOrder.buildOrderCanceledMock();
-        Order order=TestUtilOrder.buildOrderMock();
-        // when(orderPersistencePort.findById(anyLong())).thenReturn(Optional.of(order));
-        when(externalProductStrategy.isApplicable(StatusOrderEnum.SENT.name())).thenReturn(true);
-        when(anotherStrategy.isApplicable(anyString())).thenReturn(false);
-        //when(orderStrategy.doOperation(any(Order.class))).thenReturn(order);
+    @DisplayName("Expect OrderNotFoundException When Order Does Not Exist")
+    void Expect_OrderNotFoundException_When_OrderDoesNotExist() {
+        when(orderPersistencePort.findById(anyLong())).thenReturn(Optional.empty());
 
-        IOrderStrategy orderStrategy = orderStrategyList.stream()
-                .filter(strategy -> strategy.isApplicable(StatusOrderEnum.SENT.name()))
-                .findFirst()
-                .orElseThrow(() -> new OrderStrategyException("No order strategy found for status type: " + order.getStatusOrder().name()));
+        assertThrows(OrderNotFoundException.class, () -> orderService.changeStatus(1L, StatusOrderEnum.ATTENDED.name()));
 
-        orderStrategy.doOperation(order);
-
-        assertNotNull(orderStrategy);
-        Mockito.verify(orderStrategy,times(1)).doOperation(order);
-        Mockito.verify(orderStrategy,times(1)).isApplicable(anyString());
+        verify(orderPersistencePort, times(1)).findById(anyLong());
+        verify(orderStrategy, times(0)).isApplicable(anyString());
+        verify(orderStrategy, times(0)).doOperation(any(Order.class));
+        verify(orderPersistencePort, times(0)).changeStatus(any(Order.class));
     }
 
     @Test
-    @DisplayName("When OrderCompletedIsCorrect Expect OrderChangeStatus")
-    void When_OrderCompletedIsCorrect_Expect_OrderChangeStatus(){
-        orderStrategyList = List.of(anotherStrategy, externalProductStrategy);
-        //Order orderCanceled=TestUtilOrder.buildOrderCanceledMock();
-        Order order=TestUtilOrder.buildOrderMock();
-        // when(orderPersistencePort.findById(anyLong())).thenReturn(Optional.of(order));
-        when(externalProductStrategy.isApplicable(StatusOrderEnum.COMPLETED.name())).thenReturn(true);
-        when(anotherStrategy.isApplicable(anyString())).thenReturn(false);
-        //when(orderStrategy.doOperation(any(Order.class))).thenReturn(order);
+    @DisplayName("Expect OrderStrategyException When No Applicable Strategy Found")
+    void Expect_OrderStrategyException_When_NoApplicableStrategyFound() {
+        Order order = TestUtilOrder.buildOrderMock();
+        String newStatus = StatusOrderEnum.ATTENDED.name();
 
-        IOrderStrategy orderStrategy = orderStrategyList.stream()
-                .filter(strategy -> strategy.isApplicable(StatusOrderEnum.COMPLETED.name()))
-                .findFirst()
-                .orElseThrow(() -> new OrderStrategyException("No order strategy found for status type: " + order.getStatusOrder().name()));
+        when(orderPersistencePort.findById(anyLong())).thenReturn(Optional.of(order));
+        when(orderStrategy.isApplicable(newStatus)).thenReturn(false);
 
-        orderStrategy.doOperation(order);
+        assertThrows(OrderStrategyException.class, () -> orderService.changeStatus(1L, newStatus));
 
-        assertNotNull(orderStrategy);
-        Mockito.verify(orderStrategy,times(1)).doOperation(order);
-        Mockito.verify(orderStrategy,times(1)).isApplicable(anyString());
+        verify(orderPersistencePort, times(1)).findById(anyLong());
+        verify(orderStrategy, times(1)).isApplicable(newStatus);
+        verify(orderStrategy, times(0)).doOperation(any(Order.class));
+        verify(orderPersistencePort, times(0)).changeStatus(any(Order.class));
     }
 }

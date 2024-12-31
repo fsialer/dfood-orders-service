@@ -11,7 +11,8 @@ public enum ErrorCatalog {
     //PRODUCT_NOT_FOUND("ORDER_MS_003","Product Not Found"),
     WEB_CLIENT_ERROR("ORDER_MS_003", "Error with product-service."),
     ORDER_STRATEGY_ERROR("ORDER_MS_004", "Status type selected is invalid."),
-    INTERNAL_SERVER_ERROR("ORDER_MS_000", "Internal server error.");
+    INTERNAL_SERVER_ERROR("ORDER_MS_000", "Internal server error."),
+    STATUS_ORDER_RULE("ORDER_MS_005", "Status order rule not allowed.");
 
     private final String code;
     private final String message;

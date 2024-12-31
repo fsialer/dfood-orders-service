@@ -1,6 +1,8 @@
 package com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fernando.ms.orders.app.dfood_orders_service.application.ports.input.ExternalProductsInputPort;
+import com.fernando.ms.orders.app.dfood_orders_service.application.ports.input.OrderBusInputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.input.OrderInputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.output.ExternalProductsOutputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.domain.exception.OrderNotFoundException;
@@ -10,6 +12,9 @@ import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.in
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.models.request.CreateOrderRequest;
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.models.response.ErrorResponse;
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.models.response.OrderResponse;
+import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.output.bus.OrderBusAdapter;
+import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.output.persistence.repository.OrderJpaRepository;
+import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.output.restclient.client.ProductFeignClient;
 import com.fernando.ms.orders.app.dfood_orders_service.utils.TestUtilOrder;
 import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +38,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.web.servlet.function.RequestPredicates.contentType;
 
 @WebMvcTest(controllers = {OrderRestAdapter.class})
 public class GlobalControllerAdviceTest {
@@ -45,6 +49,12 @@ public class GlobalControllerAdviceTest {
 
     @MockBean
     private OrderRestMapper orderRestMapper;
+
+    @MockBean
+    private ExternalProductsInputPort externalProductsInputPort;
+
+    @MockBean
+    private OrderBusInputPort orderBusInputPort;
 
     private ObjectMapper objectMapper;
 
@@ -169,8 +179,6 @@ public class GlobalControllerAdviceTest {
         CreateOrderRequest createOrderRequest= TestUtilOrder.buildCreateOrderRequestMock();
         Order order = TestUtilOrder.buildOrderMock();
 
-//        when(orderRestMapper.toOrder(any(CreateOrderRequest.class)))
-//                .thenReturn(order);
         when(orderInputPort.changeStatus(anyLong(),anyString()))
                 .thenThrow(new OrderStrategyException("No order strategy found for status type: " + order.getStatusOrder().name()));
         mockMvc.perform(put("/orders/{id}/change-status/{status}",1L,"POD")

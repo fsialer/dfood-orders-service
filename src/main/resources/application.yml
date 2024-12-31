@@ -9,9 +9,9 @@ spring:
   jackson:
     default-property-inclusion: NON_NULL
   datasource:
-    url: jdbc:postgresql://localhost:5432/orders_db
-    username: postgres
-    password: admin
+    url: ${DB_HOST:jdbc:postgresql://localhost:5432/orders_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:admin}
     driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: true
@@ -22,3 +22,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 products-service:
   url: ${PRODUCTS_URL:http://localhost:8080}
+service-bus:
+  connection-string: ${SB_CONNECTION_STRING}
+  queue-name: ${SB_QUEUE_NAME}

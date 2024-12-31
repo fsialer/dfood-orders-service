@@ -13,7 +13,7 @@ import java.util.Objects;
 @Builder
 @Entity
 @Table(name = "order_product")
-public class OrderProductEntity {
+public class OrderProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,14 +22,14 @@ public class OrderProductEntity {
     private Integer quantity;
     private Double price;
     private Double amount;
-    @ManyToOne
-    private OrderEntity order;
+//    @ManyToOne
+//    private OrderEntity order;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof OrderProductEntity that)) return false;
-        return Objects.equals(id, that.id) && Objects.equals(productId, that.productId) && Objects.equals(quantity, that.quantity) && Objects.equals(price, that.price) && Objects.equals(amount, that.amount) && Objects.equals(order, that.order);
+        if (!(o instanceof OrderProduct that)) return false;
+        return Objects.equals(id, that.id) && Objects.equals(productId, that.productId);
     }
 
     @Override

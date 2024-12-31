@@ -2,6 +2,7 @@ package com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.i
 
 import com.fernando.ms.orders.app.dfood_orders_service.domain.exception.OrderNotFoundException;
 import com.fernando.ms.orders.app.dfood_orders_service.domain.exception.OrderStrategyException;
+import com.fernando.ms.orders.app.dfood_orders_service.domain.exception.StatusOrderRuleException;
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.models.response.ErrorResponse;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
@@ -53,18 +54,6 @@ public class GlobalControllerAdvice {
                 .build();
     }
 
-//    @ResponseStatus(HttpStatus.NOT_FOUND)
-//    @ExceptionHandler(ProductNotFoundException.class)
-//    public ErrorResponse handleProductNotFoundException() {
-//        return ErrorResponse.builder()
-//                .code(PRODUCT_NOT_FOUND.getCode())
-//                .type(FUNCTIONAL)
-//                .message(PRODUCT_NOT_FOUND.getMessage())
-//                .timestamp(LocalDate.now().toString())
-//                .build();
-//    }
-
-
     @ExceptionHandler(OrderStrategyException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleOrderStrategyException(OrderStrategyException e){
@@ -77,7 +66,17 @@ public class GlobalControllerAdvice {
                 .build();
     }
 
-
+    @ExceptionHandler(StatusOrderRuleException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleStatusOrderRuleException(StatusOrderRuleException e){
+        return ErrorResponse.builder()
+                .code(STATUS_ORDER_RULE.getCode())
+                .type(FUNCTIONAL)
+                .message(STATUS_ORDER_RULE.getMessage())
+                .details(Collections.singletonList(e.getMessage()))
+                .timestamp(LocalDate.now().toString())
+                .build();
+    }
 
     @ExceptionHandler(FeignException.class)
     public  ResponseEntity<ErrorResponse> handleFeignException(FeignException e) {
