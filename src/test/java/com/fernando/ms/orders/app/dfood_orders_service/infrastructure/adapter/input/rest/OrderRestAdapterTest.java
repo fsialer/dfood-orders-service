@@ -147,7 +147,7 @@ public class OrderRestAdapterTest {
 
 
     @Test
-    void ShouldReturnProductsWhenIdsExistingWithCodeResponse204() throws Exception {
+    void ShouldReturnWhenIdsExistingWithCodeResponse204() throws Exception {
         Order order=TestUtilOrder.buildOrderMock2();
         doNothing().when(orderInputPort).verifyExistsByIds(anyList());
         mockMvc.perform(get("/orders/verify-exists-by-ids")
@@ -155,6 +155,19 @@ public class OrderRestAdapterTest {
                         .param("ids","1"))
                 .andExpect(status().isNoContent());
         Mockito.verify(orderInputPort,times(1)).verifyExistsByIds(anyCollection());
+    }
+
+    @Test
+    @DisplayName("When Order Identifiers Status Is Correct Expect Response 204")
+    void When_OrderIdentifiersStatusIsCorrect_Expect_Response204() throws Exception {
+        Order order=TestUtilOrder.buildOrderMock2();
+        doNothing().when(orderInputPort).verifyExistsStatusByIds(anyList(),anyString());
+        mockMvc.perform(get("/orders/verify-exists-status-by-ids")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("ids","1")
+                        .param("status","REGISTERED"))
+                .andExpect(status().isNoContent());
+        Mockito.verify(orderInputPort,times(1)).verifyExistsStatusByIds(anyList(),anyString());
     }
 
 

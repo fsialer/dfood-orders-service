@@ -60,4 +60,10 @@ public class OrderRestAdapter {
     public void verifyExistByIds(@RequestParam List<Long> ids){
         orderInputPort.verifyExistsByIds(ids);
     }
+
+    @GetMapping("/verify-exists-status-by-ids")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void verifyExistStatusByIds(@RequestParam List<Long> ids,@RequestParam String status){
+        orderInputPort.verifyExistsStatusByIds(ids,status);
+    }
 }

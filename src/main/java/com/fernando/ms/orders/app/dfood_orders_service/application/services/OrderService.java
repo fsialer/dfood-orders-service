@@ -70,6 +70,13 @@ public class OrderService implements OrderInputPort, ExternalProductsInputPort, 
     }
 
     @Override
+    public void verifyExistsStatusByIds(Iterable<Long> ids, String status) {
+        if(!new HashSet<>(orderPersistencePort.findByIds(ids).stream().filter(order -> order.getStatusOrder().name().equalsIgnoreCase(status)).map(Order::getId).toList()).containsAll((Collection<?>) ids)) {
+            throw new OrderNotFoundException();
+        }
+    }
+
+    @Override
     public void addProductsToOrder(Long orderId, List<Product> products) {
         externalProductsOutputPort.addProductsToOrder(orderId, products);
     }

@@ -184,12 +184,32 @@ public class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("When Products Identifiers Are InCorrects Expect A Return True")
-    void Expect_OrderNotFoundException_WhenProductsIdentifiersAreIncorrectForVe() {
+    @DisplayName("Expect OrderNotFoundException When Orders Identifiers Are Incorrect")
+    void Expect_OrderNotFoundException_WhenOrdersIdentifiersAreIncorrect() {
         List<Long> ids = Collections.singletonList(2L);
         when(orderPersistencePort.findByIds(anyCollection()))
                 .thenReturn(Collections.singletonList(TestUtilOrder.buildOrderMock()));
         assertThrows(OrderNotFoundException.class,()->orderService.verifyExistsByIds(ids));
+        Mockito.verify(orderPersistencePort, times(1)).findByIds(anyCollection());
+    }
+
+    @Test
+    @DisplayName("When Orders Identifiers Of Status Are Corrects Expect A Return True")
+    void When_OrdersIdentifiersOfStatusAreCorrect_Expect_AReturnTrue() {
+        List<Long> ids = Collections.singletonList(1L);
+        when(orderPersistencePort.findByIds(anyCollection()))
+                .thenReturn(Collections.singletonList(TestUtilOrder.buildOrderMock()));
+        orderService.verifyExistsStatusByIds(ids,"REGISTERED");
+        Mockito.verify(orderPersistencePort, times(1)).findByIds(anyCollection());
+    }
+
+    @Test
+    @DisplayName("Expect OrderNotFoundException When Orders Identifiers Of Status Are Incorrect")
+    void Expect_OrderNotFoundException_WhenOrdersIdentifiersOfStatusAreIncorrect() {
+        List<Long> ids = Collections.singletonList(2L);
+        when(orderPersistencePort.findByIds(anyCollection()))
+                .thenReturn(Collections.singletonList(TestUtilOrder.buildOrderMock()));
+        assertThrows(OrderNotFoundException.class,()->orderService.verifyExistsStatusByIds(ids,"REGISTERED"));
         Mockito.verify(orderPersistencePort, times(1)).findByIds(anyCollection());
     }
 }
