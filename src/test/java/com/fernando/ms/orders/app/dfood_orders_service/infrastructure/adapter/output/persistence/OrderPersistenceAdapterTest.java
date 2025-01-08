@@ -1,6 +1,7 @@
 package com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.output.persistence;
 
 import com.fernando.ms.orders.app.dfood_orders_service.domain.models.Order;
+import com.fernando.ms.orders.app.dfood_orders_service.domain.models.Product;
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.output.persistence.mapper.OrderPersistenceMapper;
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.output.persistence.mapper.ProductPersistenceMapper;
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.output.persistence.mapper.StatusOrderPersistenceMapper;
@@ -126,6 +127,33 @@ public class OrderPersistenceAdapterTest {
         Mockito.verify(orderJpaRepository, times(1)).save(any(OrderEntity.class));
         Mockito.verify(orderPersistenceMapper, times(1)).toOrder(any(OrderEntity.class));
         Mockito.verify(orderPersistenceMapper, times(1)).toOrderEntity(any(Order.class));
+    }
+
+    @Test
+    void shouldConsultProductsWhenIdsExisting(){
+        List<Long> ids = Collections.singletonList(1L);
+        when(orderJpaRepository.findAllById(anyCollection()))
+                .thenReturn(Collections.singletonList(TestUtilOrder.buildOrderEntityMock5()));
+        when(orderPersistenceMapper.toOrders(anyList()))
+                .thenReturn(Collections.singletonList(TestUtilOrder.buildOrderMock()));
+        List<Order> orders=orderPersistenceAdapter.findByIds(ids);
+        assertEquals(1,orders.size());
+        Mockito.verify(orderPersistenceMapper,times(1)).toOrders(anyList());
+        Mockito.verify(orderJpaRepository,times(1)).findAllById(anyCollection());
+    }
+
+    @Test
+    @DisplayName("When_OrdersIdentifierAreCorrects_Expect_AListOrders")
+    void shouldConsultProductsWhenIdsNotExisting(){
+        List<Long> ids = Collections.singletonList(2L);
+        when(orderJpaRepository.findAllById(anyCollection()))
+                .thenReturn(Collections.emptyList());
+        when(orderPersistenceMapper.toOrders(anyList()))
+                .thenReturn(Collections.emptyList());
+        List<Order> orders=orderPersistenceAdapter.findByIds(ids);
+        assertEquals(0,orders.size());
+        Mockito.verify(orderPersistenceMapper,times(1)).toOrders(anyList());
+        Mockito.verify(orderJpaRepository,times(1)).findAllById(anyCollection());
     }
 
 

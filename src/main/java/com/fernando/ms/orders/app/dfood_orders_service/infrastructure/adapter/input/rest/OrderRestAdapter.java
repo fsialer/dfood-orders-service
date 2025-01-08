@@ -14,6 +14,7 @@ import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.ou
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,7 +45,7 @@ public class OrderRestAdapter {
         Order order=orderRestMapper.toOrder(rq);
         OrderResponse orderResponse=orderRestMapper.toOrderResponse(orderInputPort.save(order));
         externalProductsInputPort.addProductsToOrder(orderResponse.getId(),order.getProducts());
-        orderBusInputPort.updateStock(orderRestMapper.toOrder(rq));
+        //orderBusInputPort.updateStock(orderRestMapper.toOrder(rq));
         return ResponseEntity.created(URI.create("/order/".concat(orderResponse.getId().toString()))).body(orderResponse);
     }
 
@@ -52,5 +53,11 @@ public class OrderRestAdapter {
     public ResponseEntity<OrderResponse> changeStatus(@PathVariable(name = "id") Long id,@PathVariable(name = "status") String status){
         OrderResponse orderResponse=orderRestMapper.toOrderResponse(orderInputPort.changeStatus(id,status));
         return ResponseEntity.ok().body(orderResponse);
+    }
+
+    @GetMapping("/verify-exists-by-ids")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void verifyExistByIds(@RequestParam List<Long> ids){
+        orderInputPort.verifyExistsProductByIds(ids);
     }
 }

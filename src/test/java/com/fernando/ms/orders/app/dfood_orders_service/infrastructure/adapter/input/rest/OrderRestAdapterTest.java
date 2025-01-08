@@ -146,5 +146,16 @@ public class OrderRestAdapterTest {
     }
 
 
+    @Test
+    void ShouldReturnProductsWhenIdsExistingWithCodeResponse204() throws Exception {
+        Order order=TestUtilOrder.buildOrderMock2();
+        doNothing().when(orderInputPort).verifyExistsProductByIds(anyList());
+        mockMvc.perform(get("/orders/verify-exists-by-ids")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("ids","1"))
+                .andExpect(status().isNoContent());
+        Mockito.verify(orderInputPort,times(1)).verifyExistsProductByIds(anyCollection());
+    }
+
 
 }

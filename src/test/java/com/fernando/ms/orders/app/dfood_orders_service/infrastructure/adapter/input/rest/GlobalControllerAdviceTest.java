@@ -174,7 +174,7 @@ public class GlobalControllerAdviceTest {
     }
 
     @Test
-    @DisplayName("Expect FeignException When Change Status Of Product Is Invalid")
+    @DisplayName("Expect OrderStrategyException When Change Status Of Product Is Invalid")
     void Expect_OrderStrategyException_When_ChangeStatusOfProductIsInvalid() throws Exception {
         CreateOrderRequest createOrderRequest= TestUtilOrder.buildCreateOrderRequestMock();
         Order order = TestUtilOrder.buildOrderMock();

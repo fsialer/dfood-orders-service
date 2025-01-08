@@ -15,6 +15,8 @@ import com.fernando.ms.orders.app.dfood_orders_service.domain.models.enums.Statu
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -61,6 +63,13 @@ public class OrderService implements OrderInputPort, ExternalProductsInputPort, 
     }
 
     @Override
+    public void verifyExistsProductByIds(Iterable<Long> ids) {
+        if(!new HashSet<>(orderPersistencePort.findByIds(ids).stream().map(Order::getId).toList()).containsAll((Collection<?>) ids)) {
+            throw new OrderNotFoundException();
+        }
+    }
+
+    @Override
     public void addProductsToOrder(Long orderId, List<Product> products) {
         externalProductsOutputPort.addProductsToOrder(orderId, products);
     }
@@ -77,6 +86,6 @@ public class OrderService implements OrderInputPort, ExternalProductsInputPort, 
 
     @Override
     public void updateStock(Order order) {
-        orderBusOutputPort.updateStock(order);
+       orderBusOutputPort.updateStock(order);
     }
 }

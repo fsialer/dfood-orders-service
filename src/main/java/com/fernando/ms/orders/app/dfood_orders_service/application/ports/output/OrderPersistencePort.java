@@ -10,4 +10,5 @@ public interface OrderPersistencePort {
     Optional<Order> findById(Long id);
     Order save(Order order);
     Order changeStatus(Order order);
+    List<Order> findByIds(Iterable<Long> ids);
 }
