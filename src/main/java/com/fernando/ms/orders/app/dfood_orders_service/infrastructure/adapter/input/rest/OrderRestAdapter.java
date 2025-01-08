@@ -58,6 +58,6 @@ public class OrderRestAdapter {
     @GetMapping("/verify-exists-by-ids")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void verifyExistByIds(@RequestParam List<Long> ids){
-        orderInputPort.verifyExistsProductByIds(ids);
+        orderInputPort.verifyExistsByIds(ids);
     }
 }

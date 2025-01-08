@@ -9,6 +9,7 @@ public interface OrderInputPort {
     Order findById(Long id);
     Order save(Order order);
     Order changeStatus(Long id,String status);
-    void verifyExistsProductByIds(Iterable<Long> ids);
+    void verifyExistsByIds(Iterable<Long> ids);
+
 }
  

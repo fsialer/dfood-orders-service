@@ -179,7 +179,7 @@ public class OrderServiceTest {
         List<Long> ids = Collections.singletonList(1L);
         when(orderPersistencePort.findByIds(anyCollection()))
                 .thenReturn(Collections.singletonList(TestUtilOrder.buildOrderMock()));
-        orderService.verifyExistsProductByIds(ids);
+        orderService.verifyExistsByIds(ids);
         Mockito.verify(orderPersistencePort, times(1)).findByIds(anyCollection());
     }
 
@@ -189,7 +189,7 @@ public class OrderServiceTest {
         List<Long> ids = Collections.singletonList(2L);
         when(orderPersistencePort.findByIds(anyCollection()))
                 .thenReturn(Collections.singletonList(TestUtilOrder.buildOrderMock()));
-        assertThrows(OrderNotFoundException.class,()->orderService.verifyExistsProductByIds(ids));
+        assertThrows(OrderNotFoundException.class,()->orderService.verifyExistsByIds(ids));
         Mockito.verify(orderPersistencePort, times(1)).findByIds(anyCollection());
     }
 }
