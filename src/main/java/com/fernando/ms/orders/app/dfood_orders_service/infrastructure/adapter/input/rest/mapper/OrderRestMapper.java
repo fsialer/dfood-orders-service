@@ -1,5 +1,6 @@
 package com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.mapper;
 
+import com.fernando.ms.orders.app.dfood_orders_service.domain.models.Customer;
 import com.fernando.ms.orders.app.dfood_orders_service.domain.models.Order;
 import com.fernando.ms.orders.app.dfood_orders_service.domain.models.enums.StatusOrderEnum;
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.input.rest.models.request.CreateOrderRequest;
@@ -14,10 +15,13 @@ import java.util.List;
 public interface OrderRestMapper {
 
     List<OrderResponse> toOrdersResponse(List<Order> orders);
+
     OrderResponse toOrderResponse(Order order);
+
     @Mapping(target = "dateOrder", expression = "java(mapDateOrder())")
     @Mapping(target = "statusOrder", expression = "java(mapStatusOrderRegistered())")
-    Order toOrder(CreateOrderRequest createOrderRequest);
+    @Mapping(target = "customer", expression = "java(mapCustomer(rq))")
+    Order toOrder(CreateOrderRequest rq);
 
     default LocalDate mapDateOrder() {
         return LocalDate.now();
@@ -27,5 +31,7 @@ public interface OrderRestMapper {
         return StatusOrderEnum.REGISTERED;
     }
 
-
+    default Customer mapCustomer(CreateOrderRequest rq){
+        return Customer.builder().id(rq.getCustomerId()).build();
+    }
 }

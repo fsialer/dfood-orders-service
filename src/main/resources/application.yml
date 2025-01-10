@@ -21,7 +21,9 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 products-service:
-  url: ${PRODUCTS_URL:http://localhost:8080}
+  url: ${PRODUCTS_URL:http://localhost:8080/products}
+customers-service:
+  url: ${CUSTOMERS_URL:http://localhost:8082/customers}
 service-bus:
   connection-string: ${SB_CONNECTION_STRING}
   queue-name: ${SB_QUEUE_NAME}

@@ -59,18 +59,22 @@ public class OrderPersistenceAdapter implements OrderPersistencePort {
     public Order save(Order order) {
         OrderEntity orderEntity=orderPersistenceMapper.toOrderEntity(order);
         orderEntity.addStatusOrder();
+        orderEntity.setOrderCustomerId(order.getCustomer().getId());
         return orderPersistenceMapper.toOrder(orderJpaRepository.save(orderEntity));
     }
 
     @Override
     public Order changeStatus(Order order) {
         OrderEntity orderEntity=orderPersistenceMapper.toOrderEntity(order);
+        OrderEntity orderEntity2=orderJpaRepository.findById(order.getId()).get();
         orderEntity.setOrderProductList(
                 new ArrayList<>(orderJpaRepository.findById(order.getId()).get().getOrderProductList())
         );
         orderEntity.setStatusOrders(
                 new ArrayList<>(orderJpaRepository.findById(order.getId()).get().getStatusOrders()));
         orderEntity.addStatusOrder();
+        orderEntity.setCustomer(orderEntity2.getCustomer());
+        orderEntity.setCreatedAt(orderEntity2.getCreatedAt());
         return orderPersistenceMapper.toOrder(orderJpaRepository.save(orderEntity));
     }
 

@@ -3,6 +3,7 @@ package com.fernando.ms.orders.app.dfood_orders_service.application.services;
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.input.ExternalProductsInputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.input.OrderBusInputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.input.OrderInputPort;
+import com.fernando.ms.orders.app.dfood_orders_service.application.ports.output.ExternalCustomersOutputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.output.ExternalProductsOutputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.output.OrderBusOutputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.output.OrderPersistencePort;
@@ -26,7 +27,8 @@ public class OrderService implements OrderInputPort, ExternalProductsInputPort, 
     private final OrderPersistencePort orderPersistencePort;
     private final List<IOrderStrategy> orderStrategyList;
     private final ExternalProductsOutputPort externalProductsOutputPort;
-    private final OrderBusOutputPort orderBusOutputPort;
+    private final ExternalCustomersOutputPort externalCustomersOutputPort;
+    //private final OrderBusOutputPort orderBusOutputPort;
 
     @Override
     public List<Order> findAll() {
@@ -44,7 +46,7 @@ public class OrderService implements OrderInputPort, ExternalProductsInputPort, 
                 .filter(strategy-> strategy.isApplicable(StatusOrderEnum.REGISTERED.name()))
                 .findFirst()
                 .orElseThrow(() -> new OrderStrategyException("No order strategy found for status type: " + order.getStatusOrder().name()));
-
+        externalCustomersOutputPort.verifyExistsById(order.getCustomer().getId());
         return orderPersistencePort.save(orderStrategy.doOperation(order));
     }
 
@@ -93,6 +95,6 @@ public class OrderService implements OrderInputPort, ExternalProductsInputPort, 
 
     @Override
     public void updateStock(Order order) {
-       orderBusOutputPort.updateStock(order);
+       //orderBusOutputPort.updateStock(order);
     }
 }

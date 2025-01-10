@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+//@Configuration
 public class ServiceBusConfig {
     @Value("${servicebus.connection-string}")
     private String connectionString;
@@ -14,12 +14,12 @@ public class ServiceBusConfig {
     @Value("${servicebus.queue-name}")
     private String queueName;
 
-    @Bean
-    public ServiceBusSenderClient serviceBusSenderClient() {
-        return new ServiceBusClientBuilder()
-                .connectionString(connectionString)
-                .sender()
-                .queueName(queueName)
-                .buildClient();
-    }
+//    @Bean
+//    public ServiceBusSenderClient serviceBusSenderClient() {
+//        return new ServiceBusClientBuilder()
+//                .connectionString(connectionString)
+//                .sender()
+//                .queueName(queueName)
+//                .buildClient();
+//    }
 }

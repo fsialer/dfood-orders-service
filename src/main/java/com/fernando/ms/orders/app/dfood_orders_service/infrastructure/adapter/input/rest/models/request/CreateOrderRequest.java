@@ -12,14 +12,17 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class CreateOrderRequest {
-    @NotNull
-    private Long userId;
+//    @NotNull
+//    private Long userId;
     //@NotNull
     //private LocalDate dateOrder;
-    @NotNull
+    @NotNull(message = "Field totalAmount cannot be null or blank.")
     private Double totalAmount;
 //    @NotBlank
 //    private StatusOrderEnum statusOrder;
-    @NotEmpty
+    @NotEmpty(message = "Field products cannot be empty.")
     private List<CreateOrderProduct> products;
+
+    @NotNull(message = "Field customerId cannot be null or blank.")
+    private Long customerId;
 }

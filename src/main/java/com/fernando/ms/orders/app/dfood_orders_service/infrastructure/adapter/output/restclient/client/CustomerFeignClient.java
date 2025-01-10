@@ -7,10 +7,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "products-service",url = "${products-service.url}")
-public interface ProductFeignClient {
-    @GetMapping("/find-by-ids")
-    List<ProductClientResponse> findByIds(@RequestParam List<Long> ids);
-    @GetMapping("/verify-exists-by-ids")
-    void verifyExistsByIds(@RequestParam List<Long> ids);
+@FeignClient(name = "customers-service",url = "${customers-service.url}")
+public interface CustomerFeignClient {
+    @GetMapping("/verify-exists-by-id")
+    void verifyExistsById(@RequestParam Long id);
 }

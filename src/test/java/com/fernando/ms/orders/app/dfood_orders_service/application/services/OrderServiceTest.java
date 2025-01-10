@@ -1,5 +1,6 @@
 package com.fernando.ms.orders.app.dfood_orders_service.application.services;
 
+import com.fernando.ms.orders.app.dfood_orders_service.application.ports.output.ExternalCustomersOutputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.output.ExternalProductsOutputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.output.OrderBusOutputPort;
 import com.fernando.ms.orders.app.dfood_orders_service.application.ports.output.OrderPersistencePort;
@@ -24,6 +25,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,12 +45,16 @@ public class OrderServiceTest {
     private ExternalProductsOutputPort externalProductsOutputPort;
 
     @Mock
+    ExternalCustomersOutputPort externalCustomersOutputPort;
+
+    @Mock
     private OrderBusOutputPort orderBusOutputPort;
 
     @BeforeEach
     void setUp() {
         orderStrategyList = List.of(orderStrategy);
-        orderService = new OrderService(orderPersistencePort, orderStrategyList,externalProductsOutputPort,orderBusOutputPort);
+        //orderService = new OrderService(orderPersistencePort, orderStrategyList,externalProductsOutputPort,externalCustomersOutputPort,orderBusOutputPort);
+        orderService = new OrderService(orderPersistencePort, orderStrategyList,externalProductsOutputPort,externalCustomersOutputPort);
     }
 
     @Test
@@ -97,12 +103,14 @@ public class OrderServiceTest {
         when(orderStrategy.isApplicable(StatusOrderEnum.REGISTERED.name())).thenReturn(true);
         when(orderStrategy.doOperation(any(Order.class))).thenReturn(order);
         when(orderPersistencePort.save(any(Order.class))).thenReturn(order);
+        doNothing().when(externalCustomersOutputPort).verifyExistsById(anyLong());
 
         Order savedOrder = orderService.save(order);
 
         assertNotNull(savedOrder);
         verify(orderStrategy, times(1)).isApplicable(StatusOrderEnum.REGISTERED.name());
         verify(orderStrategy, times(1)).doOperation(order);
+        verify(externalCustomersOutputPort, times(1)).verifyExistsById(anyLong());
         verify(orderPersistencePort, times(1)).save(order);
     }
 

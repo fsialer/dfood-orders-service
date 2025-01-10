@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
+//@Component
 public class OrderBusAdapter implements OrderBusOutputPort {
     private final ServiceBusSenderClient sender;
     private final ObjectMapper objectMapper;

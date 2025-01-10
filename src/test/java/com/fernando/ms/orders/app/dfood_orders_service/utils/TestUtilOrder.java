@@ -1,5 +1,6 @@
 package com.fernando.ms.orders.app.dfood_orders_service.utils;
 
+import com.fernando.ms.orders.app.dfood_orders_service.domain.models.Customer;
 import com.fernando.ms.orders.app.dfood_orders_service.domain.models.Order;
 import com.fernando.ms.orders.app.dfood_orders_service.domain.models.Product;
 import com.fernando.ms.orders.app.dfood_orders_service.domain.models.StatusOrder;
@@ -12,6 +13,7 @@ import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.ou
 import com.fernando.ms.orders.app.dfood_orders_service.infrastructure.adapter.output.persistence.models.StatusOrderEntity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +35,7 @@ public class TestUtilOrder {
                         .price(20.0)
                         //.amount(40.0)
                         .build()))
+                .customer(Customer.builder().id(1L).build())
                 .build();
     }
 
@@ -82,7 +85,7 @@ public class TestUtilOrder {
                 .builder()
                 .id(1L)
                 .userId(1L)
-                .dateOrder(LocalDate.now())
+                .dateOrder(LocalDateTime.now())
                 .totalAmount(50.00)
                 .statusOrder(StatusOrderEnum.REGISTERED)
                 .orderProductList(List.of(OrderProduct
@@ -96,7 +99,7 @@ public class TestUtilOrder {
                 .statusOrders(List.of(StatusOrderEntity
                         .builder()
                         .status(StatusOrderEnum.REGISTERED.name())
-                        .createAt(LocalDate.now())
+                        .createAt(LocalDateTime.now())
                         .build()))
                 .build();
     }
@@ -106,7 +109,7 @@ public class TestUtilOrder {
                 .builder()
                 .id(1L)
                 .userId(1L)
-                .dateOrder(LocalDate.now())
+                .dateOrder(LocalDateTime.now())
                 .totalAmount(50.00)
                 .statusOrder(StatusOrderEnum.REGISTERED)
                 .orderProductList(List.of(OrderProduct
@@ -127,7 +130,7 @@ public class TestUtilOrder {
                 .builder()
                 .id(1L)
                 .userId(1L)
-                .dateOrder(LocalDate.now())
+                .dateOrder(LocalDateTime.now())
                 .totalAmount(50.00)
                 .orderProductList(new ArrayList<>(List.of(
                         OrderProduct.builder()
@@ -147,14 +150,14 @@ public class TestUtilOrder {
                 .builder()
                 .id(1L)
                 .userId(1L)
-                .dateOrder(LocalDate.now())
+                .dateOrder(LocalDateTime.now())
                 .totalAmount(50.00)
                 .statusOrder(StatusOrderEnum.ATTENDED)
                 .statusOrders(new ArrayList<>(List.of(
                         StatusOrderEntity
                                 .builder()
                                 .status(StatusOrderEnum.REGISTERED.name())
-                                .createAt(LocalDate.now())
+                                .createAt(LocalDateTime.now())
                                 .build()
                 )))
                 .build();
@@ -179,14 +182,14 @@ public class TestUtilOrder {
                 .builder()
                 .id(1L)
                 .userId(1L)
-                .dateOrder(LocalDate.now())
+                .dateOrder(LocalDateTime.now())
                 .totalAmount(50.00)
                 .statusOrder(StatusOrderEnum.REGISTERED)
                 .statusOrders(new ArrayList<>(List.of(
                         StatusOrderEntity
                                 .builder()
                                 .status(StatusOrderEnum.REGISTERED.name())
-                                .createAt(LocalDate.now())
+                                .createAt(LocalDateTime.now())
                                 .build()
                 )))
                 .orderProductList(new ArrayList<>(List.of(
@@ -215,7 +218,7 @@ public class TestUtilOrder {
     public static CreateOrderRequest buildCreateOrderRequestMock(){
         return CreateOrderRequest
                 .builder()
-                .userId(1L)
+                .customerId(1L)
                 .totalAmount(40.0)
                 .products(
                         List.of(
